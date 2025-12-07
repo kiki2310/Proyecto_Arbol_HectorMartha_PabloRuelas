@@ -28,9 +28,37 @@
         },
         {
             "id": 1,
-            "nombre": "Prueba",
+            "nombre": "proyecto_mate",
             "tipo": "carpeta",
             "contenido": null,
+            "hijos": []
+        },
+        {
+            "id": 2,
+            "nombre": "tarea_programacion",
+            "tipo": "carpeta",
+            "contenido": null,
+            "hijos": []
+        },
+        {
+            "id": 4,
+            "nombre": "fotos",
+            "tipo": "carpeta",
+            "contenido": null,
+            "hijos": []
+        },
+        {
+            "id": 5,
+            "nombre": "prueba1",
+            "tipo": "carpeta",
+            "contenido": null,
+            "hijos": []
+        },
+        {
+            "id": 6,
+            "nombre": "prueba2",
+            "tipo": "archivo",
+            "contenido": "Vacio",
             "hijos": []
         }
     ]
