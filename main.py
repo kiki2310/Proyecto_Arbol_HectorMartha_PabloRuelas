@@ -1,88 +1,120 @@
 from modelo import Nodo
 import os
 
-# Aqui controlamos todo el show del sistema de archivos
 class SistemaArchivos:
     def __init__(self):
-        # Creamos la raiz, el mero jefe de jefes (id 0)
         self.raiz = Nodo(0, "root", True)
-        # Este puntero nos dice donde andamos parados ahorita
         self.nodo_actual = self.raiz
-        # La basura pa cuando borremos algo (requisito del profe)
-        self.papelera = []  
-        # Contador pa que los IDs no se repitan y choquen
+        self.papelera = []  # Aqui van los muertitos (papelera temporal) 
         self.contador_ids = 1 
 
-    # Funcion pa crear carpetas o archivos sin broncas
-    def crear_nodo(self, nombre, es_carpeta, contenido=None):
-        # Primero checamos que no exista uno igual, pa no hacer cochinero
+    # --- FUNCIONES AUXILIARES (Pa no repetir codigo) ---
+    def buscar_hijo(self, nombre):
+        """Busca un plebe por nombre en la carpeta actual."""
         for hijo in self.nodo_actual.hijos:
             if hijo.nombre == nombre:
-                print(f"Aguanta viejo, ya existe '{nombre}' aqui. Ponle otro nombre.")
-                return
+                return hijo
+        return None
 
-        # Si todo bien, armamos el nodo nuevo
+    def obtener_ruta_actual(self):
+        """Te dice la ruta completa desde la raiz tipo /root/carpeta/archivo"""
+        ruta = []
+        nodo = self.nodo_actual
+        while nodo is not None:
+            ruta.insert(0, nodo.nombre) # Insertamos al inicio pa que quede en orden
+            nodo = nodo.padre
+        return "/" + "/".join(ruta)
+
+    # --- OPERACIONES DEL ARBOL (Lo que pide el PDF) ---
+    def crear_nodo(self, nombre, es_carpeta, contenido=None):
+        if self.buscar_hijo(nombre):
+            print(f"Epaaaa, ya existe '{nombre}' aquí. No se aceptan clones.")
+            return
+
         nuevo_nodo = Nodo(self.contador_ids, nombre, es_carpeta, contenido)
-        nuevo_nodo.padre = self.nodo_actual # Lo amarramos al padre
-        self.nodo_actual.hijos.append(nuevo_nodo) # Lo metemos a la lista de hijos
-        
-        # Incrementamos el ID pa el que sigue
+        nuevo_nodo.padre = self.nodo_actual 
+        self.nodo_actual.hijos.append(nuevo_nodo) 
         self.contador_ids += 1
-        
-        tipo = "Carpeta" if es_carpeta else "Archivo"
-        print(f"Fierro pariente, se creo la {tipo} '{nombre}' al cien.")
+        print(f"Listo el pollo, se creó '{nombre}'.")
 
-    # Pa wachar que hay adentro de la carpeta actual (el ls)
-    def listar_directorio(self):
-        print(f"\n--- Wachando lo que hay en: /{self.nodo_actual.nombre} ---")
-        if not self.nodo_actual.hijos:
-            print("  (Esta vacio el canton, no hay nada)")
+    def eliminar_nodo(self, nombre):
+        """Manda el nodo a la papelera (soft delete)."""
+        nodo = self.buscar_hijo(nombre)
+        if nodo:
+            self.nodo_actual.hijos.remove(nodo) # Lo sacamos de la lista de hijos
+            self.papelera.append(nodo)          # Lo guardamos en la papelera por si las moscas
+            print(f" Fierro, '{nombre}' se fue a la basura.")
         else:
-            for hijo in self.nodo_actual.hijos:
-                # Le pongo D si es Directorio o F si es File, pa ubicar
-                tipo = "[DIR]" if hijo.es_carpeta else "[FILE]"
-                print(f"  {tipo} {hijo.nombre}")
+            print(" No lo hallé, oiga. Escriba bien el nombre.")
 
-    # El menu pa que el usuario sepa que rollo
+    def renombrar_nodo(self, nombre_viejo, nombre_nuevo):
+        nodo = self.buscar_hijo(nombre_viejo)
+        if nodo:
+            # Validamos que el nombre nuevo no exista ya
+            if self.buscar_hijo(nombre_nuevo):
+                print(f" Nel, ya hay algo que se llama '{nombre_nuevo}'.")
+                return
+            nodo.nombre = nombre_nuevo
+            print(f" Simona la mona, ahora se llama '{nombre_nuevo}'.")
+        else:
+            print(" Ese nodo no existe, pariente.")
+
+    def cambiar_directorio(self, nombre):
+        """El famoso 'cd' pa moverse entre carpetas."""
+        if nombre == "..":
+            if self.nodo_actual.padre:
+                self.nodo_actual = self.nodo_actual.padre
+            else:
+                print(" Ya estas en la raiz, no puedes subir mas.")
+            return
+
+        nodo = self.buscar_hijo(nombre)
+        if nodo and nodo.es_carpeta:
+            self.nodo_actual = nodo
+        elif nodo and not nodo.es_carpeta:
+            print(" Ese es un archivo, no te puedes meter ahi.")
+        else:
+            print(" No existe esa carpeta.")
+
+    # --- INTERFAZ DE CONSOLA ---
     def mostrar_menu(self):
-        print("\n=== SISTEMA DE ARCHIVOS MAMALON (UAS) ===")
-        print(f"Andas en la ruta: .../{self.nodo_actual.nombre}")
-        print("1. Armar carpeta (mkdir)")
-        print("2. Armar archivo (touch)")
-        print("3. Wachar hijos (ls)")
-        print("4. Fugarse (Salir)")
+        ruta = self.obtener_ruta_actual() # Requisito: mostrar ruta completa 
+        print(f"\n Ruta: {ruta}")
+        print("1. Crear Carpeta (mkdir)")
+        print("2. Crear Archivo (touch)")
+        print("3. Listar (ls)")
+        print("4. Entrar a carpeta (cd nombre)")
+        print("5. Subir de nivel (cd ..)")
+        print("6. Renombrar (mv nombre nuevo_nombre)")
+        print("7. Eliminar (rm nombre)")
+        print("8. Salir")
 
-    # Aqui corre la magia
     def ejecutar(self):
+        print("=== SISTEMA DE ARCHIVOS UAS v1.0 ===")
         while True:
             self.mostrar_menu()
-            opcion = input("Que vas a hacer plebe? >> ")
+            entrada = input(">> ").split()
+            
+            if not entrada: continue
+            cmd = entrada[0]
 
-            if opcion == "1":
-                nombre = input("Echale el nombre a la carpeta: ")
-                # Validamos que no este vacio el nombre pa no tronar
-                if nombre: 
-                    self.crear_nodo(nombre, True)
-                else:
-                    print("Nombre invalido oiga, escriba bien.")
-            
-            elif opcion == "2":
-                nombre = input("Nombre del archivo viejon: ")
-                contenido = input("Que va a llevar adentro?: ")
-                if nombre: 
-                    self.crear_nodo(nombre, False, contenido)
-            
-            elif opcion == "3":
-                self.listar_directorio()
-            
-            elif opcion == "4":
-                print("Fierro, ahi nos vidrios...")
-                break
-            
-            else:
-                print("Esa opcion no existe compa, pongase trucha.")
+            if cmd == "1" and len(entrada) > 1: self.crear_nodo(entrada[1], True)
+            elif cmd == "2" and len(entrada) > 1: self.crear_nodo(entrada[1], False, "Vacio")
+            elif cmd == "3": self.listar_hijos()
+            elif cmd == "4" and len(entrada) > 1: self.cambiar_directorio(entrada[1])
+            elif cmd == "5": self.cambiar_directorio("..")
+            elif cmd == "6" and len(entrada) > 2: self.renombrar_nodo(entrada[1], entrada[2])
+            elif cmd == "7" and len(entrada) > 1: self.eliminar_nodo(entrada[1])
+            elif cmd == "8": break
+            else: print(" Comando no reconocido o faltan datos.")
 
-# Esto es pa que corra si lo ejecutas directo
+    def listar_hijos(self):
+        if not self.nodo_actual.hijos:
+            print("  (Vacio como mi cartera)")
+        for h in self.nodo_actual.hijos:
+            tipo = "carpeta" if h.es_carpeta else "archivo"
+            print(f"  {tipo} {h.nombre}")
+
 if __name__ == "__main__":
     app = SistemaArchivos()
     app.ejecutar()
