@@ -1,5 +1,6 @@
 from modelo import Nodo
 import os
+import json
 
 class SistemaArchivos:
     def __init__(self):
@@ -7,6 +8,8 @@ class SistemaArchivos:
         self.nodo_actual = self.raiz
         self.papelera = []  # Aqui van los muertitos (papelera temporal) 
         self.contador_ids = 1 
+        self.cargar_datos()
+
 
     # --- FUNCIONES AUXILIARES (Pa no repetir codigo) ---
     def buscar_hijo(self, nombre):
@@ -76,6 +79,50 @@ class SistemaArchivos:
         else:
             print(" No existe esa carpeta.")
 
+    def guardar_datos(self):
+        try:
+            datos = self.raiz.to_dict()
+            with open("sistema_archivos.json", "w") as archivo:
+                json.dump(datos, archivo, indent=4)
+            print("Datos guardados correctamente en sistema_archivos.json")
+        except Exception as e:
+            print(f"Error al guardar: {e}")
+
+    def cargar_datos(self):
+        if not os.path.exists("sistema_archivos.json"):
+            print("No se encontro archivo de datos previo.")
+            return
+
+        try:
+            with open("sistema_archivos.json", "r") as archivo:
+                datos = json.load(archivo)
+                self.raiz = Nodo.from_dict(datos)
+                self.nodo_actual = self.raiz
+                #  reconstruir los padres porque el JSON no guarda referencias circulares, solo la jerarquia hacia abajo
+                self._reconstruir_padres(self.raiz)
+                
+                # Si ya implementamos el Trie, hay que llenarlo de nuevo
+                if hasattr(self, 'trie'):
+                    self.trie = Trie() # Reiniciar trie
+                    self._reconstruir_trie(self.raiz)
+                    
+            print("Datos cargados correctamente.")
+        except Exception as e:
+            print(f"Error al cargar: {e}")
+
+    def _reconstruir_padres(self, nodo_actual):
+        for hijo in nodo_actual.hijos:
+            hijo.padre = nodo_actual
+            self._reconstruir_padres(hijo)
+
+    # Funcion auxiliar para que los IDs no se repitan despues de cargar
+    def _obtener_max_id(self, nodo):
+        # Busca cual es el ID mas grande que ya existe
+        max_id = nodo.id
+        for hijo in nodo.hijos:
+            max_id = max(max_id, self._obtener_max_id(hijo))
+        return max_id
+
     # --- INTERFAZ DE CONSOLA ---
     def mostrar_menu(self):
         ruta = self.obtener_ruta_actual() # Requisito: mostrar ruta completa 
@@ -87,7 +134,8 @@ class SistemaArchivos:
         print("5. Subir de nivel (cd ..)")
         print("6. Renombrar (mv nombre nuevo_nombre)")
         print("7. Eliminar (rm nombre)")
-        print("8. Salir")
+        print("8. Salir(sin guardar)")
+        print("9.- Guardar y Salir")
 
     def ejecutar(self):
         print("=== SISTEMA DE ARCHIVOS UAS v1.0 ===")
@@ -106,6 +154,8 @@ class SistemaArchivos:
             elif cmd == "6" and len(entrada) > 2: self.renombrar_nodo(entrada[1], entrada[2])
             elif cmd == "7" and len(entrada) > 1: self.eliminar_nodo(entrada[1])
             elif cmd == "8": break
+            elif cmd == "9": 
+                self.guardar_datos()
             else: print(" Comando no reconocido o faltan datos.")
 
     def listar_hijos(self):
@@ -114,6 +164,11 @@ class SistemaArchivos:
         for h in self.nodo_actual.hijos:
             tipo = "carpeta" if h.es_carpeta else "archivo"
             print(f"  {tipo} {h.nombre}")
+
+
+
+
+
 
 if __name__ == "__main__":
     app = SistemaArchivos()

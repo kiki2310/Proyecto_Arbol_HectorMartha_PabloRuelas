@@ -1,0 +1,37 @@
+{
+    "id": 0,
+    "nombre": "root",
+    "tipo": "carpeta",
+    "contenido": null,
+    "hijos": [
+        {
+            "id": 1,
+            "nombre": "UAS",
+            "tipo": "carpeta",
+            "contenido": null,
+            "hijos": [
+                {
+                    "id": 3,
+                    "nombre": "tarea.txt",
+                    "tipo": "archivo",
+                    "contenido": "Vacio",
+                    "hijos": []
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "nombre": "Proyectos",
+            "tipo": "carpeta",
+            "contenido": null,
+            "hijos": []
+        },
+        {
+            "id": 1,
+            "nombre": "Prueba",
+            "tipo": "carpeta",
+            "contenido": null,
+            "hijos": []
+        }
+    ]
+}
