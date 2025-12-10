@@ -1,0 +1,8 @@
+[C] root
+  [C] UAS
+    [A] tarea.txt
+    [C] mate
+  [C] Proyectos
+  [C] proyecto_mate
+  [C] tarea_programacion
+  [C] fotos

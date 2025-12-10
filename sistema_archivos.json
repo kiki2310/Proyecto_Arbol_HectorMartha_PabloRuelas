@@ -16,6 +16,13 @@
                     "tipo": "archivo",
                     "contenido": "Vacio",
                     "hijos": []
+                },
+                {
+                    "id": 9,
+                    "nombre": "mate",
+                    "tipo": "carpeta",
+                    "contenido": null,
+                    "hijos": []
                 }
             ]
         },
@@ -45,20 +52,6 @@
             "nombre": "fotos",
             "tipo": "carpeta",
             "contenido": null,
-            "hijos": []
-        },
-        {
-            "id": 5,
-            "nombre": "prueba1",
-            "tipo": "carpeta",
-            "contenido": null,
-            "hijos": []
-        },
-        {
-            "id": 6,
-            "nombre": "prueba2",
-            "tipo": "archivo",
-            "contenido": "Vacio",
             "hijos": []
         }
     ]

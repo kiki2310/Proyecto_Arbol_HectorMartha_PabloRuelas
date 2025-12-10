@@ -72,21 +72,21 @@ class SistemaArchivos:
     def __init__(self):
         self.raiz = Nodo(0, "root", True)
         self.nodo_actual = self.raiz
-        self.papelera = []  # Aqui van los muertitos (papelera temporal) 
+        self.papelera = []  
         self.contador_ids = 1 
         self.trie = Trie()
         self.cargar_datos()
         
-    # --- FUNCIONES AUXILIARES (Pa no repetir codigo) ---
+    #FUNCIONES AUXILIARES
     def buscar_hijo(self, nombre):
-        """Busca un plebe por nombre en la carpeta actual."""
+        #Busca un hijo por nombre en la carpeta actual
         for hijo in self.nodo_actual.hijos:
             if hijo.nombre == nombre:
                 return hijo
         return None
 
     def obtener_ruta_actual(self):
-        """Te dice la ruta completa desde la raiz tipo /root/carpeta/archivo"""
+        #ruta completa desde la raiz tipo /root/carpeta/archivo
         ruta = []
         nodo = self.nodo_actual
         while nodo is not None:
@@ -94,7 +94,7 @@ class SistemaArchivos:
             nodo = nodo.padre
         return "/" + "/".join(ruta)
 
-    # --- OPERACIONES DEL ARBOL (Lo que pide el PDF) ---
+    # OPERACIONES DEL ARBOL
     def crear_nodo(self, nombre, es_carpeta, contenido=None):
         if self.buscar_hijo(nombre):
             print(f"Epaaaa, ya existe '{nombre}' aquí. No se aceptan clones.")
@@ -133,7 +133,7 @@ class SistemaArchivos:
             print(" Ese nodo no existe, pariente.")
 
     def cambiar_directorio(self, nombre):
-        """El famoso 'cd' pa moverse entre carpetas."""
+        #el cd ...
         if nombre == "..":
             if self.nodo_actual.padre:
                 self.nodo_actual = self.nodo_actual.padre
@@ -148,6 +148,76 @@ class SistemaArchivos:
             print(" Ese es un archivo, no te puedes meter ahi.")
         else:
             print(" No existe esa carpeta.")
+
+
+    #FUNCIONES DE LA PAPELERA 
+    def ver_papelera(self):
+        if not self.papelera:
+            print(" La papelera esta vacia!")
+        else:
+            print("--- Basura ---")
+            for i, nodo in enumerate(self.papelera):
+                tipo = "carpeta" if nodo.es_carpeta else "archivo"
+                print(f" {i+1}. {tipo}: {nodo.nombre} (ID: {nodo.id})")
+
+    def vaciar_papelera(self):
+        if not self.papelera:
+            print(" Ya esta vacia.")
+        else:
+            self.papelera = [] #borrar papelera
+            print(" Fierro, se vacio la papelera")
+
+    def restaurar_nodo(self, nombre):
+        # Buscamos en la papelera a ver si existe ese archivo
+        nodo_a_restaurar = None
+        for nodo in self.papelera:
+            if nodo.nombre == nombre:
+                nodo_a_restaurar = nodo
+                break
+        
+        if nodo_a_restaurar:
+            # Validamos que no exista algo con el mismo nombre en la carpeta actual
+            if self.buscar_hijo(nombre):
+                print(f" No se puede restaurar '{nombre}' porque ya existe algo con ese nombre en esta ruta")
+                return
+
+            # Lo sacamos de la papelera
+            self.papelera.remove(nodo_a_restaurar)
+            
+            # Lo conectamos a la carpeta actual
+            nodo_a_restaurar.padre = self.nodo_actual
+            self.nodo_actual.hijos.append(nodo_a_restaurar)
+            
+            #meterlo al Trie de nuevo
+            self.trie.insertar(nodo_a_restaurar.nombre, nodo_a_restaurar)
+            #si es carpeta, tambien hay que meter sus hijos al trie
+            self._reconstruir_trie_recursivo(nodo_a_restaurar)
+
+            print(f"'{nombre}' ha sido restaurado en esta carpeta.")
+        else:
+            print(" Ese archivo no esta en la basura.")
+
+    # EXPORTAR PREORDEN 
+    def exportar_preorden(self):
+        try:
+            lineas = []
+            self._recorrido_preorden(self.raiz, lineas, 0)
+            
+            with open("reporte_preorden.txt", "w", encoding="utf-8") as f:
+                f.write("\n".join(lineas))
+            print(" Reporte exportado a 'reporte_preorden.txt'.")
+        except Exception as e:
+            print(f" Error al exportar: {e}")
+
+    def _recorrido_preorden(self, nodo, lista, nivel):
+        # Formato: Indentacion segun nivel + Tipo + Nombre
+        indent = "  " * nivel
+        tipo = "[C]" if nodo.es_carpeta else "[A]"
+        lista.append(f"{indent}{tipo} {nodo.nombre}")
+        
+        for hijo in nodo.hijos:
+            self._recorrido_preorden(hijo, lista, nivel + 1)
+
 
     def guardar_datos(self):
         try:
@@ -223,7 +293,7 @@ class SistemaArchivos:
 
     # --- INTERFAZ DE CONSOLA ---
     def mostrar_menu(self):
-        ruta = self.obtener_ruta_actual() # Requisito: mostrar ruta completa 
+        ruta = self.obtener_ruta_actual() 
         print(f"\n Ruta: {ruta}")
         print("1. Crear Carpeta (mkdir)")
         print("2. Crear Archivo (touch)")
@@ -232,9 +302,10 @@ class SistemaArchivos:
         print("5. Subir de nivel (cd ..)")
         print("6. Renombrar (mv nombre nuevo_nombre)")
         print("7. Eliminar (rm nombre)")
-        print("8. Salir(sin guardar)")
-        print("9. Buscar (prefijo)")
-        print("10. Guardar")
+        print("8. Ver Papelera | 9. Restaurar | 10. Vaciar Papelera")
+        print("11. Buscar | 12. Exportar Preorden")
+        print("13. Guardar y Salir")
+        print("14. Salir (Sin guardar)")
 
 
     def ejecutar(self):
@@ -253,11 +324,17 @@ class SistemaArchivos:
             elif cmd == "5": self.cambiar_directorio("..")
             elif cmd == "6" and len(entrada) > 2: self.renombrar_nodo(entrada[1], entrada[2])
             elif cmd == "7" and len(entrada) > 1: self.eliminar_nodo(entrada[1])
-            elif cmd == "8": break
-            elif cmd == "9" and len(entrada) > 1: self.buscar_archivo(entrada[1])
-            elif cmd == "10": 
+            elif cmd == "8": self.ver_papelera()
+            elif cmd == "9" and len(entrada) > 1: self.restaurar_nodo(entrada[1])
+            elif cmd == "10": self.vaciar_papelera()
+            elif cmd == "11" and len(entrada) > 1: self.buscar_archivo(entrada[1])
+            elif cmd == "12": self.exportar_preorden()
+            elif cmd == "13": 
                 self.guardar_datos()
+                break
+            elif cmd == "14": break 
             else: print(" Comando no reconocido o faltan datos.")
+
 
     def listar_hijos(self):
         if not self.nodo_actual.hijos:
