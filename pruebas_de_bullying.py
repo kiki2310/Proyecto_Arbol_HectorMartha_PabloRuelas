@@ -7,7 +7,7 @@ def prueba_performance():
     app = SistemaArchivos()
     
     #---carga masiva de archivos
-    CANTIDAD = 2000 # crear 2000 archivos
+    CANTIDAD = 5000 # crear 2000 archivos
     print(f"Intentando crear {CANTIDAD} archivos...")
     
     inicio = time.time()
