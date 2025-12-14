@@ -69,11 +69,12 @@ class Trie:
 
 
 class SistemaArchivos:
-    def __init__(self):
+    def __init__(self, nombre_archivo="sistema_archivos.json"):
+        self.nombre_archivo = nombre_archivo  
         self.raiz = Nodo(0, "root", True)
         self.nodo_actual = self.raiz
-        self.papelera = []  
-        self.contador_ids = 1 
+        self.papelera = []
+        self.contador_ids = 1
         self.trie = Trie()
         self.cargar_datos()
         
@@ -222,19 +223,18 @@ class SistemaArchivos:
     def guardar_datos(self):
         try:
             datos = self.raiz.to_dict()
-            with open("sistema_archivos.json", "w") as archivo:
+            with open(self.nombre_archivo, "w") as archivo:
                 json.dump(datos, archivo, indent=4)
-            print("Datos guardados correctamente en sistema_archivos.json")
+            print(f"Datos guardados correctamente en {self.nombre_archivo}")
         except Exception as e:
             print(f"Error al guardar: {e}")
 
     def cargar_datos(self):
-        if not os.path.exists("sistema_archivos.json"):
-            print("No se encontro archivo de datos previo.")
+        if not os.path.exists(self.nombre_archivo):
             return
 
         try:
-            with open("sistema_archivos.json", "r") as archivo:
+            with open(self.nombre_archivo, "r") as archivo:
                 datos = json.load(archivo)
                 self.raiz = Nodo.from_dict(datos)
                 self.nodo_actual = self.raiz

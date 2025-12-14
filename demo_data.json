@@ -1,0 +1,37 @@
+{
+    "id": 0,
+    "nombre": "root",
+    "tipo": "carpeta",
+    "contenido": null,
+    "hijos": [
+        {
+            "id": 1,
+            "nombre": "Semestre_1",
+            "tipo": "carpeta",
+            "contenido": null,
+            "hijos": [
+                {
+                    "id": 2,
+                    "nombre": "Materias",
+                    "tipo": "carpeta",
+                    "contenido": null,
+                    "hijos": []
+                },
+                {
+                    "id": 3,
+                    "nombre": "horario.pdf",
+                    "tipo": "archivo",
+                    "contenido": "Lunes a Viernes",
+                    "hijos": []
+                },
+                {
+                    "id": 4,
+                    "nombre": "lista_proyectos.txt",
+                    "tipo": "archivo",
+                    "contenido": "Proyecto 1, 2 y 3",
+                    "hijos": []
+                }
+            ]
+        }
+    ]
+}

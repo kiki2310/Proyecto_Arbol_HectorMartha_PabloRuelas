@@ -5,54 +5,34 @@
     "contenido": null,
     "hijos": [
         {
-            "id": 1,
-            "nombre": "UAS",
+            "id": 5,
+            "nombre": "1er_semestre",
             "tipo": "carpeta",
             "contenido": null,
             "hijos": [
                 {
-                    "id": 3,
-                    "nombre": "tarea.txt",
-                    "tipo": "archivo",
-                    "contenido": "Vacio",
-                    "hijos": []
-                },
-                {
-                    "id": 9,
+                    "id": 6,
                     "nombre": "mate",
                     "tipo": "carpeta",
                     "contenido": null,
                     "hijos": []
+                },
+                {
+                    "id": 7,
+                    "nombre": "progra",
+                    "tipo": "carpeta",
+                    "contenido": null,
+                    "hijos": [
+                        {
+                            "id": 8,
+                            "nombre": "merge_sort.py",
+                            "tipo": "archivo",
+                            "contenido": "Vacio",
+                            "hijos": []
+                        }
+                    ]
                 }
             ]
-        },
-        {
-            "id": 2,
-            "nombre": "Proyectos",
-            "tipo": "carpeta",
-            "contenido": null,
-            "hijos": []
-        },
-        {
-            "id": 1,
-            "nombre": "proyecto_mate",
-            "tipo": "carpeta",
-            "contenido": null,
-            "hijos": []
-        },
-        {
-            "id": 2,
-            "nombre": "tarea_programacion",
-            "tipo": "carpeta",
-            "contenido": null,
-            "hijos": []
-        },
-        {
-            "id": 4,
-            "nombre": "fotos",
-            "tipo": "carpeta",
-            "contenido": null,
-            "hijos": []
         }
     ]
 }
